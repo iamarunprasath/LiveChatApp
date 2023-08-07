@@ -2,15 +2,24 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SocketComponentProps } from "../Interfaces/socket.interfaces";
 import loginImg from "../images/loginImg.jpg";
+import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 const Login = ({ socket }: SocketComponentProps) => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState<string>("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    localStorage.setItem("userName", userName);
-    socket.emit("newUser", { userName, socketID: socket.id });
+    // const result = await axios.get("/api/socketio-url");
+
+    socket.connect();
+    const userId = uuidv4();
+    localStorage.setItem("username", userName);
+    localStorage.setItem("socketID", socket.id);
+    localStorage.setItem("userId", userId);
+    socket.emit("newUser", { username: userName, socketID: socket.id, userId });
     navigate("/chat");
   };
 
@@ -49,7 +58,11 @@ const Login = ({ socket }: SocketComponentProps) => {
         </p>
       </div>
       <div className="hidden sm:block flex-1 p-10 md:p-1 ">
-        <img className="object-contain h-auto w-auto" src={loginImg} alt="Login Img"></img>
+        <img
+          className="object-contain h-auto w-auto"
+          src={loginImg}
+          alt="Login Img"
+        ></img>
       </div>
     </div>
   );
